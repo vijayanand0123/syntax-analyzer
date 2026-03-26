@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Syntax Analyzer</title>
+
+<style>
+  body {
+    font-family: Arial;
+    background: #0d0f14;
+    color: white;
+    padding: 20px;
+  }
+
+  textarea {
+    width: 100%;
+    height: 220px;
+    background: #1a1d27;
+    color: white;
+    border: 1px solid #444;
+    padding: 10px;
+    font-family: monospace;
+  }
+
+  button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    background: orange;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+  }
+
+  #output {
+    margin-top: 20px;
+    background: #13161e;
+    padding: 15px;
+    border-radius: 8px;
+    font-family: monospace;
+    white-space: pre-wrap;
+  }
+</style>
+
+</head>
+
+<body>
+
+<h2>🧠 Syntax Analyzer (Parser)</h2>
+
+<textarea id="code">
+int x = 5;
+int y = x + 2;
+</textarea>
+
+<br>
+<button onclick="analyzeSyntax()">Parse Code</button>
+
+<div id="output">Click parse to see syntax tree...</div>
+
+<script>
+function analyzeSyntax() {
+  let code = document.getElementById("code").value;
+  let lines = code.split("\n");
+
+  let ast = [];
+
+  lines.forEach((line, index) => {
+    line = line.trim();
+    if (!line) return;
+
+    // Check for semicolon
+    if (!line.endsWith(";")) {
+      ast.push("❌ Syntax Error at line " + (index + 1) + ": Missing ';'");
+      return;
+    }
+
+    // Remove semicolon
+    line = line.slice(0, -1);
+
+    // Variable Declaration
+    let declMatch = line.match(/(int|float)\s+(\w+)\s*=\s*(.+)/);
+
+    if (declMatch) {
+      ast.push("VarDecl");
+      ast.push(" ├── Type: " + declMatch[1]);
+      ast.push(" ├── Name: " + declMatch[2]);
+      ast.push(" └── Value: " + declMatch[3]);
+    }
+
+    // Expression
+    else if (line.includes("+") || line.includes("-") || line.includes("*") || line.includes("/")) {
+      ast.push("Expression");
+      ast.push(" └── " + line);
+    }
+
+    else {
+      ast.push("Unknown Statement: " + line);
+    }
+  });
+
+  document.getElementById("output").innerHTML =
+    "Abstract Syntax Tree:\n\n" + ast.join("\n");
+}
+</script>
+
+</body>
+</html>
